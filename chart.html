@@ -1,0 +1,152 @@
+
+
+<style>
+
+
+
+.label {
+
+  font: 300 10pt 'Futura', sans-serif;
+
+}
+
+
+
+div.label {
+
+
+
+}
+
+input.slider {
+
+  width: 75%;
+
+  margin: auto;
+
+  display: block;
+
+}
+
+input.number {
+
+  text-align: center;
+
+  margin-left: 2px;
+
+}
+
+.donut {
+
+  margin: auto;
+
+  display: flex;
+
+  justify-content: center; /* align horizontal */
+
+  align-items: center; /* align vertical */
+
+}
+
+.chartContainer {
+
+  padding: 20px;
+
+  display: inline-block;
+
+  margin: auto;
+
+  width: 230;
+
+}
+
+.header {
+
+  font: 300 14pt 'Futura', sans-serif;
+
+  text-align: center;
+
+  vertical-align: middle;
+
+}
+
+
+
+.sub-header {
+
+  font: 100 8pt 'Futura', sans-serif;
+
+}
+
+.label-value {
+
+  /*display: inline;*/
+
+  font: 300 10pt 'Helvetica Neue', sans-serif;
+
+  position: relative;
+
+  margin: auto;
+
+  display: flex;
+
+  justify-content: center; /* align horizontal */
+
+  align-items: center; /* align vertical */
+
+    /*float: none;*/
+
+}
+
+donut-chart{
+
+	width: 100%;
+
+	height: 100%;
+
+	position: absolute;
+
+}
+
+</style>
+
+
+
+
+
+
+
+
+
+<div ng-controller="mainCtrl">
+
+      <div class="chartContainer">
+
+        <div class="header">MOVIES RELEASED<br><span class="sub-header">2016 | 2015</span></div>
+
+        <res-donut data="data_res" accessor="accessor_res" class="donut"></res-donut> 
+
+       
+
+		
+
+		<p>
+
+		in this shows the graph of movies released in 2016 and 2015
+
+		
+
+		</p>
+
+		
+
+		
+
+		
+
+      </div>
+
+            
+
+	  </div>
+

@@ -1,0 +1,168 @@
+<style type="text/css">
+.headerBlk{
+	padding:10px;
+	background:#2a6496;
+	border:solid 1px #eee;
+	color:#fff;
+	margin-bottom:20px;
+}
+.MovieListTxt a{
+	 font-size:12px; 
+}
+.headStyle{
+	 font-size:16px !important; 
+	 color:#000 !important;
+}
+.selectBox{
+	width:100px;
+    float:left;	
+	margin-right:20px;
+}
+.top10{
+   margin-top:6px;
+}
+.movie.ng-scope.col-md-4 {
+    min-height: 150px;
+}
+span.round.ng-binding {
+    height: 25px;
+    background: cadetblue;
+    width: 25px;
+    text-align: center;
+    line-height: 25px;
+    color: #fff;
+    font-size: x-large;
+    font-weight: 700;
+}
+p.col-md-10.headin {
+    height: 25px;
+	    background: #5f9ea01a;
+}
+.displaynone{
+    visibility: hidden;
+}
+
+@media only screen and (max-width: 500px) {
+.input-group {
+    position: relative;
+    display: block;
+    border-collapse: separate;
+}
+form {
+    padding-top: 10px;
+}
+h4.col-md-12 {
+    background: #2a6496;
+}
+h4.col-md-12 > .headStyle{
+    color: #fff!important;
+}
+}
+</style>
+
+
+<div class="container-fluid">
+	<div class="container">
+		<div class="row">
+			<legend>Find a movie from <a href="http://imdb">ImDB Database</a></legend>
+		</div>
+		<div class="row headerBlk">
+			<div class="col-md-4 col-sm-12">
+				<select ng-model="pageSize" id="pageSize" class="form-control selectBox">
+				<option value="5">5</option>
+				<option value="10">10</option>
+				<option value="15">15</option>
+				<option value="20">20</option>
+				</select>
+				<button ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1" class="btn btn-default">
+                Prev
+            </button>
+            {{currentPage+1}}/{{numberOfPages()}}
+            <button ng-disabled="currentPage >= getData().length/pageSize - 1" ng-click="currentPage=currentPage+1" class="btn btn-default">
+                Next
+            </button>
+
+
+  
+
+			</div>
+			<div class="col-md-8 col-sm-12">
+				  <form action="" method="POST" role="form">
+            <div class="input-group">
+              <input type="search" id="search" class="form-control" ng-model="search">
+              <div class="input-group-addon">Found {{(awesomeThings | filter:search).length}} of {{awesomeThings.length}}</div>
+              <div class="input-group-addon "><input type="checkbox" ng-model="list" value="true" id="list" /><label for="list">List</label></div>
+              <div class="input-group-addon "><input type="checkbox" ng-model="year" value="true" id="year" /><label for="year">year</label></div>
+               <div class="input-group-addon "><input type="checkbox" ng-model="reverse" value="true" id="reverse" /><label for="reverse">reverse</label></div>
+              
+            </div>
+          </form>
+			
+			</div>
+		</div>
+		<div class="row">
+		
+		<div class="col-md-12 MovieListTxt">
+				<div ng-class="list ? 'col-md-6' : 'col-md-4'" class="movie" 
+    ng-repeat="movie in awesomeThings | filter:search | orderBy:'title_year':year
+    | startFrom:currentPage*pageSize | limitTo:pageSize"">
+	
+ <p ng-class="list ? 'col-md-10 ' : 'col-md-12 displaynone'" class="headin" ><span class="round" style="float:left">{{movie.movie_title[0]}}</span> 
+ <!-- <a style="float:right" ng-click="showDetails = ! showDetails">More</a> -->
+ </p>
+            <a href="{{movie.movie_imdb_link}}" target="_blank">
+            <h4 ng-class="list ? 'col-md-10' : 'col-md-12'" ><span class="headStyle">{{movie.movie_title}}</span></h4>
+            <p ng-if="movie.director_name" ng-class="list ? 'col-md-10' : 'col-md-12'">Director :{{movie.director_name}}</p>
+            <p ng-class="list ? 'col-md-10' : 'col-md-12'">Actors :{{movie.actor_1_name}} , {{movie.actor_2_name}}</p>
+            
+
+
+         <!-- <div class="procedure-details" ng-show="list? showDetails : !showDetails "> -->
+		 
+                       <p ng-if="movie.title_year" ng-class="list ? 'col-md-10' : 'col-md-12'">Year : {{movie.title_year}}</p>
+            
+            <p ng-if="movie.content_rating" ng-class="list ? 'col-md-10' : 'col-md-12'">Rating : {{movie.content_rating}}</p>
+            
+            <p ng-if="movie.language" ng-class="list ? 'col-md-10' : 'col-md-12'">language:{{movie.language}}</p>
+
+            <p ng-if="movie.genres" ng-class="list ? 'col-md-10' : 'col-md-12'">genres:{{movie.genres}}</p>
+			
+         <!-- </div> -->
+</a>
+          </div>
+		
+		</div>
+		
+		
+		</div>
+	</div>
+
+</div>
+
+
+
+
+  <!--
+<p>
+
+
+
+
+
+
+   Hai {{awesomeThings}} 
+    </p>
+
+-->
+
+
+   
+
+
+
+
+
+         
+
+
+    

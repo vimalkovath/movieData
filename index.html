@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html data-ng-app="webapp">
+
+    <head>
+        <title>Vimal</title>
+        <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body{
+                padding-top: 70px;
+            }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular-route.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js"></script>
+				  <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    </head>
+    
+    <body>
+        <div data-navbar title="testtitle"></div>
+        <div data-ng-view></div>
+    </body>
+    
+    
+    
+     <script>
+            angular.module('webapp', ['myApp','movies','testnav', 'ngRoute', 'ui.bootstrap']);
+            angular.module('webapp').config(['$routeProvider', function ($routeProvider) {
+                "use strict";
+                $routeProvider.
+				 when('/', {navitem: false, controller: 'MoviesCtrl', name: 'movies', templateUrl: 'movies.html'}).
+                   when('/route2', {navitem: true, controller: 'MoviesCtrl', name: 'movies', templateUrl: 'movies.html'}).
+				     when('/chart', {navitem: true, controller: 'mainCtrl', name: 'chart', templateUrl: 'chart.html'}).
+                    when('/login', {navitem: true, controller: 'loginCtrl', name: 'login', templateUrl: 'login.html'}).
+                     otherwise({redirectTo: '/login'});
+            }]);
+            
+            angular.module('testnav', []).directive('navbar', [function () {
+                "use strict";
+                return {
+                    restrict: 'AE',
+                    replace: true,
+                    transclude: false,
+                    scope: {
+                        title: '@'
+                    },
+                    controller: ['$scope', '$location', '$route', function ($scope, $location, $route) {
+                                
+                        $scope.navClass = function (page) {
+                            var currentRoute = $location.path().substring(1).split('/')[0];
+							console.log(currentRoute);
+                            return page === currentRoute ? 'active' : '';
+                        };
+                                
+                        $scope.isLogin = function (page) {
+                            var currentRoute = $location.path().substring(1).split('/')[0];
+                            console.log(currentRoute);
+                            if(currentRoute=='login'){
+                                return false;
+                            }
+                            else{
+                                return true;
+                            }
+                           
+                        };
+                          
+   $scope.isLoged = function (page) {
+                            if(page=='login'){
+                                return false;
+                            }
+                            else{
+                                return true;
+                            }
+                           
+                        };	
+						
+   $scope.doLogOut = function (page) {
+   localStorage.removeItem("user");
+  
+     $location.path('/login'); 
+    console.log("Logout",localStorage.getItem("user"));  
+                        };	
+
+						
+                        $scope.routes = [];
+                        
+                        angular.forEach($route.routes, function (value, key) {
+                            if (value.navitem) {
+                                var routeitem = {};
+                                routeitem.path = value.originalPath;
+                                routeitem.name = value.name;
+                                routeitem.templateUrl = value.templateUrl;
+                                routeitem.controller = value.controller;
+                                $scope.routes.push(routeitem);
+                            }
+                        });
+                        $scope.isCollapsed = true;
+                    }],
+                    template:
+                        '<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-show="isLogin(\'{{route.name}}\')" >' +
+                            '<div class="navbar-header">' +
+                                '<button type="button" class="navbar-toggle" ng-init="navCollapsed = true" ng-click="navCollapsed = !navCollapsed">' +
+                                    '<span class="sr-only">Toggle navigation</span>' +
+                                    '<span class="icon-bar"></span>' +
+                                    '<span class="icon-bar"></span>' +
+                                    '<span class="icon-bar"></span>' +
+                                '</button>' +
+                                '<a id="Ludicbrand" class="navbar-brand" href="#/home">' +
+                                    '<span class="thin" ng-bind="title"></span>' +
+                                '</a>' +
+                            '</div>' +
+                            '<div class="collapse navbar-collapse" ng-class="!navCollapsed && \'in\'">' +
+                                '<ul class="nav navbar-nav">' +
+                                    '<li ng-repeat="route in routes" data-ng-class="navClass(\'{{route.name}}\')">' +
+                                        '<a  ng-show="isLoged(\'{{route.name}}\') " ng-href="#{{route.path}}" ng-bind="isLoged(\'{{route.name}}\') ? route.name : \'logout\' "></a>' +
+										 '<a ng-click="doLogOut()" ng-hide="isLoged(\'{{route.name}}\') " ng-bind="isLoged(\'{{route.name}}\') ? route.name : \'logout\' "></a>' +
+                                    '</li>' +
+                                '</ul>' +
+                            '</div>' +
+                        '</nav>'
+                };
+            }]);
+
+
+            angular.module('movies', []).controller('MoviesCtrl', function ($filter, $scope,$http) {
+                
+                
+  $scope.search = "";
+  $scope.reverse = false;
+  $scope.year = false;
+  
+  $scope.list = false;
+  
+  
+   $scope.showDetails= false;
+                
+                $scope.awesomeThings = [];
+                var url='http://starlord.hackerearth.com/movieslisting';
+
+
+                $http({
+                    crossDomain: true,
+                    xhrFields: {withCredentials: false},
+                    headers: {'Accept': 'application/json','Content-Type': 'application/json'},
+                    method: 'GET',
+                    url: url
+                })
+    .then(function(response) {
+        $scope.awesomeThings = response.data;
+    });
+
+
+
+
+
+
+    $scope.currentPage = 0;
+    $scope.pageSize = 10;
+
+
+
+
+
+    
+    $scope.getData = function () {
+      return $filter('filter')($scope.awesomeThings, $scope.search)
+    }
+    
+    $scope.numberOfPages=function(){
+        return Math.ceil($scope.getData().length/$scope.pageSize);                
+    }
+    
+   
+
+
+              }).filter('startFrom', function() {
+    return function(input, start) {
+        start = +start; //parse to int
+        return input.slice(start);
+    }
+})
+.controller('loginCtrl',['MyUser','$scope','$http','$location', function (MyUser,$scope,$http,$location) {
+     
+    
+	
+	 $scope.isloggedin = false;;
+	 
+
+ 
+   MyUser.getStatus().then(function(reports){
+      console.log("reports"+reports);
+	   $scope.isloggedin = reports;
+	      $location.path('/route2'); 
+     });
+
+  
+  console.log(" $scope.isloggedin"+ $scope.isloggedin);
+      
+    $scope.login = function () {
+        console.log("inside login");
+		
+		localStorage.setItem('user', 'userdata');
+		
+        $location.path('/route2'); 
+    }
+
+	
+	
+	
+}])
+.service('MyUser', ['$q',function($q,$scope) {
+  this.loggedIn = false;
+      var deferred = $q.defer();
+ 
+  return {
+    getStatus: function() {
+     
+	  var a= localStorage.getItem('user');
+	  console.log("aaaa"+a);
+	   if(a){
+	     this.loggedIn = true;
+		  deferred.resolve(this.loggedIn);
+	   }
+	   else{
+	     this.loggedIn = false;
+		   deferred.reject(this.loggedIn);
+	   }
+       return deferred.promise;
+    },
+	
+	setStatus: function() {
+       this.loggedIn = true;
+       return this.loggedIn;
+    }
+  }
+}]);
+
+
+    var arc = d3.svg.arc();
+
+
+
+    angular.module('myApp', []).controller('mainCtrl', function ($scope,$http,filterFilter) {
+
+	
+
+	
+
+	var url='http://starlord.hackerearth.com/movieslisting';
+
+	
+
+	  $scope.data_res = [{ label: '2016', value: 50 },
+
+                     { label: '2015', value: 50 }];
+
+
+
+	  $http.get(url)
+
+    .then(function(response) {
+
+        $scope.responseData = response.data;
+
+		
+
+		var _2016 = filterFilter($scope.responseData, { 'title_year': "2016" });
+
+                            var _2015  = filterFilter($scope.responseData, { 'title_year': "2015"});
+
+							
+
+				
+
+           $scope.data_res[0].value=_2016.length;		
+
+		   		
+
+           $scope.data_res[1].value=_2015.length;	
+
+						console.log($scope.data_res[0].value,$scope.data_res[1].value);
+
+        	 
+
+				
+
+						
+
+    });
+
+	
+
+    
+
+					 
+
+					 
+
+   
+
+      $scope.accessor_res = function(d){ return +d.value };
+
+     
+
+      // so that our directive can know how to access the values from our data.
+
+      // $scope.accessor = function(d){ return d.value };
+
+    }).directive('resDonut', function() {
+
+      function link(scope, el, attr){
+
+        var color = d3.scale.ordinal().range(["#bd9e39","#0868ac"]);
+
+        var data = scope.data;
+
+        var width = 250;
+
+        var height = 250;
+
+        var min = Math.min(width, height);
+
+        var svg = d3.select(el[0]).append('svg');
+
+        var pie = d3.layout.pie().sort(null);
+
+        arc.outerRadius(min / 2 * 0.8)
+
+          .innerRadius(min / 2 * 0.45);
+
+        
+
+        pie.value(function(d){ return +d.value ; });
+
+
+
+        svg.attr({width: width, height: height});
+
+        var g = svg.append('g')
+
+          // center the donut chart
+
+          .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+
+        
+
+        // add the <path>s for each arc slice
+
+        var arcs = g.selectAll('path').data(pie(data))
+
+          .enter().append('path')
+
+            .style('stroke', 'white')
+
+            .attr('fill-opacity', 0.75)
+
+            .attr('fill', function(d, i){ return color(i); })
+
+            // store the initial angles
+
+            .each(function(d) { return this._current = d });
+
+
+
+       var labels = g.selectAll('.label').data(pie(data))
+
+          .enter().append("text")
+
+          .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+
+          .attr("dy", ".35em")
+
+          .attr("class", "label")
+
+          .style("text-anchor", "middle")
+
+          .text(function(d) { return d.data.label === "2016" ? "2016" : "2015"; });
+
+
+
+        scope.$watch('data', function (newVal, oldVal) {
+
+          console.log("an element within `data` changed!");
+
+          var ca = newVal.filter(function(d) {return d.label === "2016";}),
+
+              nr = newVal.filter(function(d) {return d.label === "2015";}),
+
+              duration = 750;
+
+              nr[0].value = +nr[0].value;
+
+          ca[0].value = 100 - nr[0].value;
+
+          arcs.data(pie(scope.data)); //.attr('d', arc)
+
+          arcs.transition().duration(duration).attrTween('d', arcTween);
+
+          labels.data(pie(scope.data)).transition().duration(duration).attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; });
+
+        }, true);
+
+      }
+
+      return {
+
+        link: link,
+
+        restrict: 'E',
+
+        scope: { 'data': '=',
+
+                'accessor': '=' }
+
+      };
+
+
+
+    }).directive('donut', function() {
+
+  return { restrict: 'E',
+
+           link: function(scope, element) {
+
+                   //custom colors          
+
+                  var color = d3.scale.ordinal()
+
+                  .range(["#3399FF", "#5DAEF8", "#86C3FA", "#ADD6FB", "#D6EBFD"]);
+
+                   var data = [82, 62, 10, 32];
+
+                   var width = 600;
+
+                   var height = 600;
+
+                   var pie = d3.layout.pie().sort(null);
+
+                   var arc = d3.svg.arc()
+
+                     .outerRadius(width / 2 * 0.9)
+
+                     .innerRadius(width / 2 * 0.5)
+
+                   var svg = d3.select(element[0]).append('svg')
+
+                     .attr({width: width, height: height})
+
+                     .append('g')
+
+                     .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+
+                     // add the <path>s for each arc slice
+
+                  svg.selectAll('path').data(pie(data))
+
+                     .enter().append('path')
+
+                     .style('stroke', 'white')
+
+                     .attr('d', arc)
+
+                     .attr('fill', function(d, i){ return color(i) });
+
+            }
+
+   }
+
+  
+
+});
+
+
+
+
+ 
+
+    function arcTween(a) {
+
+          // see: http://bl.ocks.org/mbostock/1346410
+
+          var i = d3.interpolate(this._current, a);
+
+          this._current = i(0);
+
+          return function(t) {
+
+            return arc(i(t));
+
+          };
+
+        }
+
+
+
+
+
+
+
+  </script>
+
+
+        
+</html>
